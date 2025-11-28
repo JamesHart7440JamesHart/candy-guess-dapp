@@ -1,120 +1,225 @@
-# GuessNumber – Fully Homomorphic Guessing Game
+# GuessNumber - FHE-Powered Number Guessing Game
 
-Next.js + Wagmi + RainbowKit front end backed by a `@fhevm/solidity` smart contract. Players submit guesses that are encrypted client-side with Zama’s relayer SDK and processed on-chain through fail-closed FHE logic.
+A privacy-preserving number guessing game built with Fully Homomorphic Encryption (FHE) technology. Players submit encrypted guesses that are compared on-chain without revealing the secret number until the round ends.
 
-## Stack
+## 🎯 Overview
 
-- **Next.js 14 / React 18** with the App Router
-- **Tailwind CSS** + shadcn/ui components
-- **Wagmi 2 + RainbowKit 2** (Coinbase connector disabled)
-- **Hardhat** for contract compilation, testing, deployment, verification
-- **@zama-fhe/relayer-sdk@0.2.0** for encryption
-- **@fhevm/solidity@^0.8.0** contracts (Sepolia configuration)
-- **Playwright** smoke tests for the client shell
+GuessNumber leverages Zama's fhEVM technology to enable truly private gameplay. All guesses are encrypted client-side before being submitted to the blockchain, ensuring that:
+- Players' strategies remain confidential
+- The secret number stays hidden until reveal
+- On-chain comparisons happen on encrypted data
+- Game fairness is cryptographically guaranteed
 
-## Requirements
+## 🚀 Live Demo
 
-- Node.js 20 (use `nvm use 20` if available)
+- **Frontend**: https://guessnumber-fhe.vercel.app
+- **Smart Contract**: [0xEEEd804dA7FC8e027916ca6789dc79AD054c74e9](https://sepolia.etherscan.io/address/0xEEEd804dA7FC8e027916ca6789dc79AD054c74e9)
+- **Network**: Sepolia Testnet
+- **GitHub**: https://github.com/JamesHart7440JamesHart/candy-guess-dapp
+
+## ✨ Features
+
+### 🔐 FHE-Encrypted Guesses
+Every guess is encrypted using Zama's relayer SDK before hitting the blockchain. Complete privacy guaranteed.
+
+### 📊 Smart Hints
+Receive encrypted hints (higher/lower) without exposing your guess or the secret number to anyone.
+
+### 🎉 On-Chain Verification
+All game logic runs on-chain with cryptographic proofs. No trusted third parties required.
+
+### 🌐 Multi-Wallet Support
+Seamless integration with Rainbow, MetaMask, WalletConnect, Ledger, Brave, and Safe wallets.
+
+## 🛠️ Technology Stack
+
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Web3**: Wagmi v2 + RainbowKit v2
+- **FHE**: @zama-fhe/relayer-sdk v0.3.0-5 (CDN-loaded)
+- **Smart Contracts**: Solidity + @fhevm/solidity v0.9.x
+- **Development**: Hardhat, Playwright
+- **Deployment**: Vercel + Sepolia Testnet
+
+## 📦 Installation
+
+### Prerequisites
+
+- Node.js 20+ (use `nvm use 20` if available)
 - npm 10+
-- Optional: `forge`/`cast` if extending on-chain tooling
+- Metamask or compatible Web3 wallet
 
-## Quick start
+### Setup
 
 ```bash
+# Clone the repository
+git clone https://github.com/JamesHart7440JamesHart/candy-guess-dapp.git
+cd candy-guess-dapp
+
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
-# open http://localhost:3000
 ```
 
-The development server hydrates purely on the client; wallet UI is disabled automatically when `NEXT_PUBLIC_DISABLE_WALLETKIT=1` (used during Playwright runs).
+The app will be available at http://localhost:3000
 
-## Environment variables
+## 🔧 Configuration
 
-Create `.env.local` with the following values before running production builds or the deployed site:
+### Environment Variables
 
-```
-NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourSepoliaDeployment
+Create a `.env.local` file:
+
+```env
+NEXT_PUBLIC_CONTRACT_ADDRESS=0xEEEd804dA7FC8e027916ca6789dc79AD054c74e9
 NEXT_PUBLIC_SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id
 NEXT_PUBLIC_DEFAULT_ROUND_ID=1
+```
 
-# hardhat / deployment
-PRIVATE_KEY=0xprivate_key_for_deployer
+### For Contract Deployment
+
+Create a `.env` file:
+
+```env
+PRIVATE_KEY=your_private_key
 ETHERSCAN_API_KEY=your_etherscan_api_key
+SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
 ```
 
-The deployment script writes a ready-to-use `.env.local` after each run.
+## 📜 Smart Contract
 
-## Useful npm scripts
+### Deployment
 
-| command | purpose |
-| --- | --- |
-| `npm run dev` | Next.js dev server |
-| `npm run build` | Production build (Next + type-check) |
-| `npm run lint` | Next lint pipeline |
-| `npm run compile` | Hardhat contract compilation |
-| `npm run test` | Hardhat unit tests (FHE mocks) |
-| `npm run deploy:sepolia` | Deploy contract using Hardhat (writes `.env.local` + `deployment.json`) |
-| `npm run test:e2e` | Playwright smoke test (wallet UI disabled automatically) |
-
-> _Note:_ `npm run build` and `npm run dev` emit warnings about optional peer dependencies from MetaMask / WalletConnect. These modules pull native bridge packages we purposely do not install; the DApp still functions as expected.
-
-## Contract toolchain
-
-```
-# compile & generate typechain
+```bash
+# Compile contracts
 npm run compile
 
-# run Solidity + FHE aware tests (skips heavy FHE checks when not mockable)
+# Run tests
 npm run test
 
-# deploy to Sepolia (requires PRIVATE_KEY + ETHERSCAN_API_KEY)
+# Deploy to Sepolia
 npm run deploy:sepolia
-
-# verify (optional)
-npm run verify:sepolia -- <contract> <args>
 ```
 
-`contracts/GuessNumberGame.sol` implements:
+### Contract Address
 
-- `externalEuint16` inputs validated via `FHE.fromExternal`
-- Range checks with fail-closed `FHE.select`
-- Hint computation stored per player with ACL (`FHE.allow`) and decryption-ready handles
-- Gateway reveal flow with timeout cancellation (`requestRoundReveal`, `cancelReveal`)
-- Strict Sepolia configuration (`SepoliaConfig`)
+**Sepolia**: `0xEEEd804dA7FC8e027916ca6789dc79AD054c74e9`
 
-Corresponding Hardhat tests (`test/GuessNumberGame.test.ts`) use the FHE plugin mock to verify ACL and fail-closed semantics.
+[View on Etherscan](https://sepolia.etherscan.io/address/0xEEEd804dA7FC8e027916ca6789dc79AD054c74e9)
 
-## Frontend notes
+### Key Functions
 
-- All components that mutate state are client components (`'use client'`)
-- `src/hooks/useGame.ts` wraps wagmi reads/writes around the latest ABI (`src/lib/abi/guessNumberGame.ts`)
-- `src/lib/fhe.ts` lazily imports `@zama-fhe/relayer-sdk/bundle` and caches the SDK instance
-- Wallet connectors exclude Coinbase and default to WalletConnect, MetaMask, Rainbow, Ledger, Brave, Safe
-- Setting `NEXT_PUBLIC_DISABLE_WALLETKIT=1` (as done in the Playwright script) removes RainbowKit and renders a stub button so tests can run without a wallet
+- `submitGuess(uint256 roundId, bytes calldata encryptedGuess, bytes calldata inputProof)` - Submit encrypted guess
+- `requestRoundReveal(uint256 roundId)` - Request secret number reveal
+- `cancelReveal(uint256 roundId)` - Cancel pending reveal request
 
-## Playwright
+## 🎮 How to Play
 
-Playwright is configured in `playwright.config.ts`. The helper script starts the dev server and runs lightweight UI assertions. Wallet connectors are stubbed via `NEXT_PUBLIC_DISABLE_WALLETKIT=1` so tests do not require an injected provider.
+1. **Connect Wallet**: Click "Start Playing" and connect your Web3 wallet
+2. **Initialize FHE**: The app automatically initializes Zama's FHE encryption
+3. **Submit Guess**: Enter a number between 1-100 and submit (encrypted automatically)
+4. **Get Hints**: Receive encrypted feedback (higher/lower)
+5. **Win Round**: Keep guessing until you find the secret number!
+
+## 🏗️ Architecture
+
+### Frontend Flow
 
 ```
-# install browsers (once)
+User Input → FHE Encryption → Smart Contract → Encrypted Storage
+                ↓                    ↓
+         Encrypted Hint ← On-Chain Comparison
+```
+
+### FHE Integration
+
+The app uses Zama's relayer SDK loaded via CDN for optimal performance:
+
+```typescript
+// Loaded in app/layout.tsx
+<script src="https://cdn.zama.org/relayer-sdk-js/0.3.0-5/relayer-sdk-js.umd.cjs" />
+
+// Used in src/lib/fhe.ts
+const sdk = window.RelayerSDK;
+await sdk.initSDK();
+const fheInstance = await sdk.createInstance(SepoliaConfig);
+```
+
+## 🧪 Testing
+
+### Unit Tests
+
+```bash
+npm run test
+```
+
+### E2E Tests
+
+```bash
+# Install Playwright browsers (once)
 npx playwright install chromium
 
-# run smoke tests
+# Run tests
 npm run test:e2e
 ```
 
-To run full wallet flows, clear the `NEXT_PUBLIC_DISABLE_WALLETKIT` variable and ensure a persistent browser profile has an authorised test wallet (see `PLAYWRIGHT_MCP_GUIDE.md`).
+## 📝 Available Scripts
 
-## Deployment
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Next.js development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm run compile` | Compile smart contracts |
+| `npm run test` | Run Hardhat tests |
+| `npm run test:e2e` | Run Playwright E2E tests |
+| `npm run deploy:sepolia` | Deploy to Sepolia testnet |
 
-1. Deploy the contract (`npm run deploy:sepolia`) and record the address.
-2. Populate `.env.local` with the new contract address and WalletConnect project id.
-3. `npm run build` → deploy the `.next` output (or push to Vercel; `vercel.json` keeps SPA rewrites).
+## 🔒 Security Features
 
-## Troubleshooting
+- **Client-Side Encryption**: All guesses encrypted before leaving browser
+- **Zero-Knowledge Proofs**: Cryptographic proofs verify guess validity
+- **No Plaintext Exposure**: Secret number never exposed until official reveal
+- **ACL Protection**: Access control lists manage encrypted data permissions
+- **Fail-Closed Design**: Smart contract fails safely on invalid inputs
 
-- **Metamask / WalletConnect build warnings** – safe to ignore locally; install `@react-native-async-storage/async-storage` and `pino-pretty` only if you need native bridges.
-- **Playwright cannot find wallet UI** – ensure `NEXT_PUBLIC_DISABLE_WALLETKIT` is set to `1` when running the smoke test, or configure the persisted browser profile with an authorised wallet as described in the MCP guide.
-- **FHE initialisation errors** – confirm you are running in a browser (SDK cannot execute on the server) and that Sepolia gateways are reachable.
+## 🌟 Key Highlights
+
+✅ **Privacy-First**: Complete gameplay privacy using FHE
+✅ **Trustless**: No central authority or trusted third party
+✅ **On-Chain**: All logic verified on Ethereum blockchain
+✅ **User-Friendly**: Seamless UX despite complex cryptography
+✅ **Production-Ready**: Deployed on Sepolia with Vercel hosting
+
+## 📚 Documentation
+
+- [Zama fhEVM Docs](https://docs.zama.ai/fhevm)
+- [Smart Contract Source](./contracts/GuessNumberGame.sol)
+- [Frontend Architecture](./docs/FRONTEND_DEV.md)
+- [Backend Development](./docs/BACKEND_DEV.md)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit issues or pull requests.
+
+## 📄 License
+
+This project is part of the Zama Developer Program.
+
+## 🔗 Links
+
+- **Live Demo**: https://guessnumber-fhe.vercel.app
+- **GitHub**: https://github.com/JamesHart7440JamesHart/candy-guess-dapp
+- **Contract**: https://sepolia.etherscan.io/address/0xEEEd804dA7FC8e027916ca6789dc79AD054c74e9
+- **Zama**: https://zama.ai
+
+## 👨‍💻 Developer
+
+Built by JamesHart7440JamesHart for the Zama Developer Program
+
+---
+
+**Note**: This is a demo application on Sepolia testnet. Use test ETH only.
