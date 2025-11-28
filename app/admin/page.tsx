@@ -131,18 +131,17 @@ export default function AdminPage() {
       //   value: ENTRY_FEE
       // });
 
-      toast({
-        title: "Round created!",
-        description: `Transaction: ${tx.slice(0, 10)}...${tx.slice(-8)}`
-      });
+      // toast({
+      //   title: "Round created!",
+      //   description: `Transaction: ${tx.slice(0, 10)}...${tx.slice(-8)}`
+      // });
 
-      // Refetch current round ID
-      await currentRoundIdQuery.refetch();
+      // // Refetch current round ID
+      // await currentRoundIdQuery.refetch();
 
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       toast({ title: "Creation failed", description: message, variant: "destructive" });
-    } finally {
       setIsCreating(false);
     }
   };
