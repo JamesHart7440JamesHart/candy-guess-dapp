@@ -113,13 +113,23 @@ export default function AdminPage() {
       );
 
       // Create the round
-      const tx = await writeContractAsync({
-        address: CONTRACT_ADDRESSES.GUESS_NUMBER_GAME as `0x${string}`,
-        abi: guessNumberGameAbi,
-        functionName: "createRound",
-        args: [handle as `0x${string}`, inputProof as `0x${string}`, BigInt(durationSec)],
-        value: ENTRY_FEE
+      // Note: createRound function is not in the current contract ABI
+      // This functionality is currently disabled
+      toast({
+        title: "Feature unavailable",
+        description: "Round creation is currently disabled. The contract doesn't support this function.",
+        variant: "destructive"
       });
+      setIsCreating(false);
+      return;
+
+      // const tx = await writeContractAsync({
+      //   address: CONTRACT_ADDRESSES.GUESS_NUMBER_GAME as `0x${string}`,
+      //   abi: guessNumberGameAbi,
+      //   functionName: "createRound",
+      //   args: [handle as `0x${string}`, inputProof as `0x${string}`, BigInt(durationSec)],
+      //   value: ENTRY_FEE
+      // });
 
       toast({
         title: "Round created!",
