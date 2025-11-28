@@ -40,3 +40,8 @@ deployments
 .next
 out
 build
+
+# Test outputs
+test-results
+playwright-report
+coverage
