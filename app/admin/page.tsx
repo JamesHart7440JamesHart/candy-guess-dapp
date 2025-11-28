@@ -93,6 +93,15 @@ export default function AdminPage() {
       return;
     }
 
+    if (!address) {
+      toast({
+        title: "Wallet not connected",
+        description: "Please connect your wallet first",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsCreating(true);
 
     try {
