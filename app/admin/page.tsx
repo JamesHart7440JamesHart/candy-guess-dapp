@@ -97,7 +97,7 @@ export default function AdminPage() {
 
     try {
       // Encrypt the secret number
-      const { handle, proof } = await encryptGuess(
+      const { handle, inputProof } = await encryptGuess(
         secret,
         CONTRACT_ADDRESSES.GUESS_NUMBER_GAME,
         address
@@ -108,7 +108,7 @@ export default function AdminPage() {
         address: CONTRACT_ADDRESSES.GUESS_NUMBER_GAME as `0x${string}`,
         abi: guessNumberGameAbi,
         functionName: "createRound",
-        args: [handle as `0x${string}`, proof as `0x${string}`, BigInt(durationSec)],
+        args: [handle as `0x${string}`, inputProof as `0x${string}`, BigInt(durationSec)],
         value: ENTRY_FEE
       });
 
